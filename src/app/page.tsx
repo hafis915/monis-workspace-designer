@@ -3,44 +3,44 @@ import { Picker } from "@/components/Picker";
 
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[1400px] flex-col px-5 pb-10 pt-6 lg:px-10">
+    <main className="mx-auto flex min-h-dvh max-w-[1500px] flex-col px-5 pb-10 pt-6 lg:px-10">
       {/* nav */}
       <header className="flex items-center justify-between pb-6">
         <div className="flex items-baseline gap-2">
-          <span className="font-display text-xl tracking-tight text-[var(--color-charcoal)]">
-            monis<span className="text-[var(--color-terracotta-deep)]">.</span>rent
+          <span className="font-display text-xl tracking-tight text-[var(--color-ink)]">
+            monis<span className="text-[var(--color-lime-deep)]">.</span>rent
           </span>
-          <span className="hidden text-xs uppercase tracking-[0.18em] text-[var(--color-charcoal-soft)] sm:inline">
+          <span className="hidden text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-soft)] sm:inline">
             · Workspace designer
           </span>
         </div>
-        <div className="hidden text-xs uppercase tracking-[0.14em] text-[var(--color-charcoal-soft)] md:block">
-          Bali · Canggu, Ubud, Uluwatu
+        <div className="hidden text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)] md:block">
+          Bali · Canggu · Ubud · Uluwatu
         </div>
       </header>
 
       {/* hero */}
-      <section className="mb-7 max-w-3xl">
-        <h1 className="font-display text-4xl leading-[1.04] tracking-tight text-[var(--color-charcoal)] sm:text-5xl md:text-6xl">
-          Build the desk you wish you had{" "}
-          <em className="not-italic text-[var(--color-terracotta-deep)]">— today.</em>
+      <section className="mb-6 max-w-3xl">
+        <h1 className="font-display text-4xl leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-5xl md:text-[3.5rem]">
+          Design the workspace you wish you had{" "}
+          <em className="not-italic text-[var(--color-ink-soft)]">— today.</em>
         </h1>
-        <p className="mt-4 max-w-xl text-sm leading-relaxed text-[var(--color-charcoal-soft)] sm:text-base">
-          Mix and match desks, chairs, monitors, and accessories. Rent the
-          whole setup by the day. Delivered to your villa, café, or coworking
-          space anywhere on the island.
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--color-ink-soft)] sm:text-base">
+          Mix and match desks, chairs, monitors, accessories, coffee gear,
+          outdoor toys, and a relax corner. Rent the whole setup by the day,
+          delivered to your villa, café, or coworking spot.
         </p>
       </section>
 
       {/* grid */}
-      <section className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_400px]">
+      <section className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
         <Workspace />
-        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-sand)] p-5 lg:p-6">
+        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 lg:p-6">
           <Picker />
         </div>
       </section>
 
-      <footer className="mt-10 flex items-center justify-between border-t border-[var(--color-line)] pt-5 text-xs uppercase tracking-[0.14em] text-[var(--color-charcoal-soft)]">
+      <footer className="mt-10 flex items-center justify-between border-t border-[var(--color-line)] pt-5 text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">
         <span>monis.rent · Made for nomads in Bali</span>
         <span>Designed for the Desent coding test</span>
       </footer>
