@@ -2,6 +2,7 @@
 
 import { Fragment } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import clsx from "clsx";
 import { useDesigner } from "@/lib/store";
 import { CATALOG_BY_ID, CoffeeTable } from "@/lib/catalog";
 import type { Category } from "@/lib/types";
@@ -27,22 +28,29 @@ const slotMotion = {
   transition: { duration: 0.32, ease },
 };
 
-// Drag bounds per category (in viewBox units, applied to the wrapping motion.g).
 const DRAG_BOUNDS: Partial<Record<Category, { left: number; right: number; top: number; bottom: number }>> = {
   monitor: { left: -80, right: 80, top: -10, bottom: 10 },
   accessory: { left: -50, right: 50, top: -15, bottom: 15 },
   greenery: { left: -120, right: 120, top: -20, bottom: 20 },
 };
 
-// viewBox per focus zone. All maintain 12:7 aspect.
-const ZONE_VIEWBOX: Record<string, string> = {
+export type ZoneKey = "default" | "coffee" | "relax" | "desk";
+
+const ZONE_VIEWBOX: Record<ZoneKey, string> = {
   default: "0 0 1200 750",
   coffee: "0 320 686 400",
   relax: "740 360 480 280",
-  desk: "240 100 686 400", // covers desk, chair, monitors, accessories
+  desk: "240 100 686 400",
 };
 
-function zoneForCategory(category: Category | undefined): keyof typeof ZONE_VIEWBOX {
+const ZONE_BUTTONS: { key: ZoneKey; label: string }[] = [
+  { key: "default", label: "Room" },
+  { key: "desk", label: "Desk" },
+  { key: "coffee", label: "Coffee" },
+  { key: "relax", label: "Relax" },
+];
+
+function autoZoneForCategory(category: Category | undefined): ZoneKey {
   if (!category) return "default";
   if (category === "coffee") return "coffee";
   if (category === "relax") return "relax";
@@ -53,15 +61,14 @@ function zoneForCategory(category: Category | undefined): keyof typeof ZONE_VIEW
 type WorkspaceProps = {
   className?: string;
   activeCategory?: Category;
-  forceUnzoom?: boolean;
-  onExitZoom?: () => void;
+  manualZone?: ZoneKey | null;
+  onZoneChange?: (zone: ZoneKey | null) => void;
 };
 
-export function Workspace({ className, activeCategory, forceUnzoom, onExitZoom }: WorkspaceProps) {
+export function Workspace({ className, activeCategory, manualZone, onZoneChange }: WorkspaceProps) {
   const selection = useDesigner((s) => s.selection);
-  const autoZone = zoneForCategory(activeCategory);
-  const zone = forceUnzoom ? "default" : autoZone;
-  const isZoomed = zone !== "default";
+  const autoZone = autoZoneForCategory(activeCategory);
+  const zone: ZoneKey = manualZone ?? autoZone;
 
   return (
     <div className={className}>
@@ -146,29 +153,33 @@ export function Workspace({ className, activeCategory, forceUnzoom, onExitZoom }
           </AnimatePresence>
         </motion.svg>
 
-        {/* Zoom indicator — click to exit */}
-        <AnimatePresence>
-          {isZoomed && (
-            <motion.button
-              type="button"
-              onClick={onExitZoom}
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.3, ease }}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-              className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-[var(--color-paper)] shadow-sm transition hover:bg-[var(--color-teal-deep)]"
-              aria-label="Exit zoom"
-            >
-              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-lime)]" />
-              Zoom · {zone === "desk" ? "Desk" : zone === "coffee" ? "Coffee" : "Relax"}
-              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
-                <path d="M2 2 L8 8 M8 2 L2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </motion.button>
-          )}
-        </AnimatePresence>
+        {/* Zone control bar */}
+        <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2">
+          <div className="flex items-center gap-1 rounded-full border border-[var(--color-line)] bg-[var(--color-paper)]/95 p-1 shadow-sm backdrop-blur">
+            {ZONE_BUTTONS.map((b) => {
+              const isActive = zone === b.key;
+              return (
+                <button
+                  key={b.key}
+                  type="button"
+                  onClick={() => onZoneChange?.(b.key)}
+                  className={clsx(
+                    "rounded-full px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] transition",
+                    isActive
+                      ? "bg-[var(--color-ink)] text-[var(--color-paper)]"
+                      : "text-[var(--color-ink-soft)] hover:bg-[var(--color-paper-deep)] hover:text-[var(--color-ink)]",
+                  )}
+                  aria-pressed={isActive}
+                >
+                  {isActive && b.key !== "default" && (
+                    <span className="mr-1 inline-block h-1 w-1 rounded-full bg-[var(--color-lime)] align-middle" />
+                  )}
+                  {b.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
