@@ -56,11 +56,11 @@ export function RealItemEditor({ selectedKey, itemName, onDeselect }: Props) {
     <AnimatePresence>
       <motion.div
         key={selectedKey}
-        initial={{ opacity: 0, y: -8 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
+        exit={{ opacity: 0, y: 8 }}
         transition={{ duration: 0.25, ease }}
-        className="absolute right-3 top-3 z-20 flex w-[260px] flex-col gap-2 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)]/95 p-3 shadow-md backdrop-blur"
+        className="fixed inset-x-3 bottom-3 z-30 flex flex-col gap-2 rounded-2xl border border-[var(--color-line)] bg-[var(--color-paper)]/95 p-3 shadow-lg backdrop-blur lg:absolute lg:inset-x-auto lg:bottom-auto lg:right-3 lg:top-3 lg:w-[260px] lg:shadow-md"
       >
         {/* header */}
         <div className="flex items-center justify-between">

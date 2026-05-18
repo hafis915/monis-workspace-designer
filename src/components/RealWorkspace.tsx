@@ -9,6 +9,7 @@ import {
   type RealCategory,
 } from "@/lib/catalog-real";
 import { CanvasHints } from "./CanvasHints";
+import { SceneImage } from "./SceneImage";
 
 const LAYER_ORDER: RealCategory[] = [
   "gaming",
@@ -290,14 +291,12 @@ export function RealWorkspace({
                         transformBox: "view-box",
                       }}
                     >
-                      <image
+                      <SceneImage
                         href={item.imageUrl}
                         x={rect.x}
                         y={rect.y}
                         width={rect.w}
                         height={rect.h}
-                        preserveAspectRatio="xMidYMid meet"
-                        style={{ mixBlendMode: "multiply", pointerEvents: "auto" }}
                       />
                       {isSelected && (
                         <rect
