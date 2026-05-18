@@ -8,6 +8,7 @@ import {
   REAL_CATALOG_BY_ID,
   type RealCategory,
 } from "@/lib/catalog-real";
+import { CanvasHints } from "./CanvasHints";
 
 const LAYER_ORDER: RealCategory[] = [
   "gaming",
@@ -228,6 +229,8 @@ export function RealWorkspace({
             "radial-gradient(ellipse 40% 32% at 18% 14%, rgba(212,255,0,0.10), transparent 70%)",
         }}
       />
+
+      <CanvasHints message="Drag items · Scroll to zoom · Click an item to edit" />
 
       <motion.svg
         viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}

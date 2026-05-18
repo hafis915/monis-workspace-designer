@@ -69,7 +69,15 @@ export function RealPicker({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-3">
+      <div
+        className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-3"
+        style={{
+          maskImage:
+            "linear-gradient(to right, black 0, black calc(100% - 28px), transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to right, black 0, black calc(100% - 28px), transparent 100%)",
+        }}
+      >
         {REAL_CATEGORIES.map((c) => {
           const count = realCountInCategory(selection, c.id);
           const isActive = active === c.id;
@@ -198,7 +206,7 @@ export function RealPicker({
         </div>
       </div>
 
-      <div className="sticky bottom-0 -mx-5 mt-4 border-t border-[var(--color-line)] bg-[var(--color-paper)] px-5 pb-5 pt-4 lg:-mx-6 lg:px-6">
+      <div className="-mx-5 mt-4 border-t border-[var(--color-line)] bg-[var(--color-paper)] px-5 pb-5 pt-4 lg:sticky lg:bottom-0 lg:-mx-6 lg:px-6">
         <div className="mb-3 flex items-baseline justify-between">
           <span className="text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">
             Daily total · {realTotalItemCount(selection)} items

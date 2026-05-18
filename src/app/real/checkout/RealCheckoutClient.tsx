@@ -19,6 +19,7 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export function RealCheckoutClient() {
   const [reserved, setReserved] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const selection = useRealDesigner((s) => s.selection);
   const currency = useUi((s) => s.currency);
   const daily = realTotalPerDay(selection);
@@ -118,11 +119,28 @@ export function RealCheckoutClient() {
         </dl>
 
         <button
-          onClick={() => setReserved(true)}
-          disabled={reserved}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-ink)] py-3.5 text-sm uppercase tracking-[0.14em] text-[var(--color-paper)] transition hover:bg-[var(--color-teal-deep)] disabled:opacity-60"
+          onClick={() => {
+            if (reserved || submitting) return;
+            setSubmitting(true);
+            window.setTimeout(() => {
+              setSubmitting(false);
+              setReserved(true);
+            }, 900);
+          }}
+          disabled={reserved || submitting}
+          aria-busy={submitting}
+          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-ink)] py-3.5 text-sm uppercase tracking-[0.14em] text-[var(--color-paper)] transition hover:bg-[var(--color-teal-deep)] disabled:opacity-80"
         >
-          {reserved ? "Reserved — see you soon" : "Reserve setup"}
+          {reserved ? (
+            "Reserved — see you soon"
+          ) : submitting ? (
+            <span className="inline-flex items-center gap-2">
+              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-lime)]" />
+              Reserving…
+            </span>
+          ) : (
+            "Reserve setup"
+          )}
         </button>
         <p className="mt-3 text-center text-xs text-[var(--color-ink-soft)]">
           No payment is taken in this demo.

@@ -6,6 +6,7 @@ import clsx from "clsx";
 import { useDesigner } from "@/lib/store";
 import { CATALOG_BY_ID, CoffeeTable } from "@/lib/catalog";
 import type { Category } from "@/lib/types";
+import { CanvasHints } from "./CanvasHints";
 
 const LAYER_ORDER: Category[] = [
   "outdoor",
@@ -92,6 +93,8 @@ export function Workspace({ className, activeCategory, manualZone, onZoneChange 
               "radial-gradient(ellipse 40% 32% at 18% 14%, rgba(212,255,0,0.10), transparent 70%)",
           }}
         />
+
+        <CanvasHints message="Drag items · Click a zone to focus" />
 
         <motion.svg
           viewBox={ZONE_VIEWBOX.default}
