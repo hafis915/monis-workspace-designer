@@ -12,6 +12,7 @@ import {
 } from "@/lib/store-real";
 import { REAL_CATEGORY_BY_ID } from "@/lib/catalog-real";
 import { useUi, formatPrice } from "@/lib/ui-store";
+import { ShareButton } from "@/components/ShareButton";
 
 const RENTAL_DAYS = 30;
 const DELIVERY = 12;
@@ -21,6 +22,7 @@ export function RealCheckoutClient() {
   const [reserved, setReserved] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const selection = useRealDesigner((s) => s.selection);
+  const transforms = useRealDesigner((s) => s.transforms);
   const currency = useUi((s) => s.currency);
   const daily = realTotalPerDay(selection);
   const items = realItemsInOrder(selection);
@@ -145,6 +147,8 @@ export function RealCheckoutClient() {
         <p className="mt-3 text-center text-xs text-[var(--color-ink-soft)]">
           No payment is taken in this demo.
         </p>
+
+        <ShareButton basePath="/real" payload={{ selection, transforms }} />
 
         <div role="status" aria-live="polite" aria-atomic="true">
           <AnimatePresence>

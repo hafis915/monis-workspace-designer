@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Workspace } from "@/components/Workspace";
 import { useDesigner, totalPerDay, itemsInOrder } from "@/lib/store";
 import { useUi, formatPrice } from "@/lib/ui-store";
+import { ShareButton } from "@/components/ShareButton";
 import { CATEGORY_BY_ID } from "@/lib/types";
 
 const RENTAL_DAYS = 30;
@@ -136,6 +137,8 @@ export function CheckoutClient() {
         <p className="mt-3 text-center text-xs text-[var(--color-ink-soft)]">
           No payment is taken in this demo.
         </p>
+
+        <ShareButton basePath="/" payload={{ selection }} />
 
         <div role="status" aria-live="polite" aria-atomic="true">
           <AnimatePresence>
