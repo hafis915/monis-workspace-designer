@@ -119,20 +119,22 @@ export function CheckoutClient() {
           No payment is taken in this demo.
         </p>
 
-        <AnimatePresence>
-          {reserved && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.32, ease }}
-              className="mt-5 rounded-2xl border border-[var(--color-teal)] bg-[var(--color-paper-soft)] p-4 text-sm text-[var(--color-teal-deep)]"
-            >
-              Confirmation sent. Our team will be in touch about delivery within
-              the next few hours.
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <div role="status" aria-live="polite" aria-atomic="true">
+          <AnimatePresence>
+            {reserved && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.32, ease }}
+                className="mt-5 rounded-2xl border border-[var(--color-teal)] bg-[var(--color-paper-soft)] p-4 text-sm text-[var(--color-teal-deep)]"
+              >
+                Workspace reserved. Our team will be in touch about delivery
+                within the next few hours.
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );

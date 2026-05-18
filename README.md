@@ -43,6 +43,60 @@ No UI kit. No image dependencies. The whole catalog ships as a single TSX file.
 
 ---
 
+## Design tokens
+
+Tokens live as CSS custom properties in `src/app/globals.css` and are exposed to Tailwind via `@theme inline`. The whole product uses these — nothing else.
+
+### Palette ("Punchy Utility")
+
+| Token | Hex | Role |
+|---|---|---|
+| `--color-paper` | `#FAFAF7` | App background |
+| `--color-paper-soft` | `#F3F2EC` | Canvas wall, card backgrounds |
+| `--color-paper-deep` | `#EBEAE2` | Canvas floor, dividers |
+| `--color-ink` | `#0E0E0F` | Primary text, dark surfaces |
+| `--color-ink-soft` | `#3A3A3C` | Secondary text |
+| `--color-line` | `#D8D6CC` | Borders, hairlines |
+| `--color-lime` / `--color-lime-deep` | `#D4FF00` / `#B6DC00` | Brand accent (rules below) |
+| `--color-teal` / `--color-teal-deep` | `#14564B` / `#0B3A32` | Product accent (mesh, scooter), confirmation states |
+| `--color-walnut` / `--color-walnut-deep` | `#6F4F37` / `#4D3624` | Wood furniture |
+
+**Lime usage rule.** Lime appears in two places only:
+1. **Active UI state** — dots on the currently active zone/tab/currency, badge fills, button-active backgrounds.
+2. **One product detail per item** — lamp dome, monitor screen glow, surfboard stripe, mug body, bean-bag cushion.
+
+Lime is never used on text-sized surfaces (fails contrast). Decorative dots are fine.
+
+### Typography
+
+- **Display** — Fraunces (`var(--font-fraunces)`). Optical-size + soft axes enabled. Used for headlines, item names, totals.
+- **Body** — Inter (`var(--font-inter)`). Used for everything else.
+- No `system-ui` fallbacks for the display stack. If Fraunces fails to load, the body font carries it.
+
+### Spacing & rhythm
+
+Tailwind's default 4px scale. Common values: `p-1` (4px) on pill inner padding, `p-3` (12px) on cards, `p-5`/`p-6` (20/24px) on container outer padding, `gap-1.5`/`gap-3`/`gap-4` for inline groups.
+
+### Motion
+
+One ease curve, one duration. Both reused everywhere:
+
+```ts
+const ease = [0.22, 1, 0.36, 1] as const;
+const duration = 0.32; // seconds
+```
+
+Slot animations (scene item enter/exit): same recipe with `opacity`, `y: 8 -> 0`, `scale: 0.96 -> 1`. Zoom transitions use `0.55s` for a slightly weightier feel.
+
+### Component recipes
+
+- **Pill control** — `rounded-full border border-line px-3 py-1.5 text-[11px] uppercase tracking-[0.14em]`. Active state: `bg-ink text-paper` + lime dot.
+- **Card** — `rounded-2xl border bg-paper-soft p-3` with thumb (left) + content (right) + optional action (far right). Selected state: `border-ink ring-1 ring-ink`. Editing state: `border-lime-deep ring-2 ring-lime`.
+- **CTA button** — `rounded-full bg-ink py-3 text-paper uppercase tracking-[0.14em]`. Hover: `bg-teal-deep`.
+- **Thumbnail container** — `rounded-md` (intentionally harder-edged than the parent card, to break the everything-is-soft pattern).
+
+---
+
 ## Structure
 
 ```

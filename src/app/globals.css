@@ -47,3 +47,23 @@ body {
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
+
+/* Accessibility: visible focus ring that survives every background.
+   2px lime band + 1px ink offset reads on white, paper, dark, lime alike. */
+*:focus-visible {
+  outline: 2px solid var(--color-lime);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 3px var(--color-ink);
+  border-radius: 3px;
+}
+
+/* Respect users who request reduced motion. Drops Framer Motion
+   animations to ~no-op so vestibular-sensitive users aren't punished
+   for entering the canvas. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
