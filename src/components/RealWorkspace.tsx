@@ -39,17 +39,18 @@ const ZONE_BUTTONS: { key: RealZoneKey; label: string }[] = [
   { key: "fitness", label: "Fitness" },
 ];
 
-const DRAG_BOUNDS: Record<RealCategory, { left: number; right: number; top: number; bottom: number }> = {
-  desk:      { left: -40,  right: 40,  top: -15, bottom: 15 },
-  chair:     { left: -70,  right: 70,  top: -20, bottom: 20 },
-  monitor:   { left: -90,  right: 90,  top: -20, bottom: 20 },
-  accessory: { left: -60,  right: 60,  top: -20, bottom: 20 },
-  lighting:  { left: -80,  right: 80,  top: -30, bottom: 30 },
-  coffee:    { left: -80,  right: 80,  top: -20, bottom: 20 },
-  computer:  { left: -80,  right: 80,  top: -20, bottom: 20 },
-  gaming:    { left: -100, right: 100, top: -40, bottom: 40 },
-  fitness:   { left: -100, right: 100, top: -40, bottom: 40 },
-};
+const SCENE_W = 1200;
+const SCENE_H = 750;
+const EDGE_BUFFER = 80; // allow a little overshoot beyond the canvas edges
+
+function boundsForRect(rect: { x: number; y: number; w: number; h: number }) {
+  return {
+    left:   -rect.x - EDGE_BUFFER,
+    right:  SCENE_W - rect.x - rect.w + EDGE_BUFFER,
+    top:    -rect.y - EDGE_BUFFER,
+    bottom: SCENE_H - rect.y - rect.h + EDGE_BUFFER,
+  };
+}
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
@@ -129,7 +130,7 @@ export function RealWorkspace({
                   const item = REAL_CATALOG_BY_ID[id];
                   if (!item) return null;
                   const rect = item.position(index);
-                  const bounds = DRAG_BOUNDS[category];
+                  const bounds = boundsForRect(rect);
                   const k = instanceKey(category, id, index);
                   const t = transforms[k] ?? { rotation: 0, swivelY: 0, flipX: false, scale: 1 };
                   const isSelected = selectedKey === k;

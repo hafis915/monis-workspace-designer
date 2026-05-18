@@ -28,16 +28,20 @@ const slotMotion = {
   transition: { duration: 0.32, ease },
 };
 
+// Single permissive bound used for all categories: items can be dragged
+// anywhere on the canvas (and a little past the edges) from their natural
+// position. Generous so smaller items near the edges still reach the far
+// side.
 const DRAG_BOUNDS: Record<Category, { left: number; right: number; top: number; bottom: number }> = {
-  desk:      { left: -50,  right: 50,  top: -10, bottom: 10 },
-  chair:     { left: -70,  right: 70,  top: -20, bottom: 20 },
-  monitor:   { left: -80,  right: 80,  top: -15, bottom: 15 },
-  accessory: { left: -50,  right: 50,  top: -15, bottom: 15 },
-  lighting:  { left: -100, right: 100, top: -30, bottom: 30 },
-  greenery:  { left: -140, right: 140, top: -30, bottom: 30 },
-  coffee:    { left: -60,  right: 60,  top: -10, bottom: 10 },
-  outdoor:   { left: -80,  right: 80,  top: -40, bottom: 40 },
-  relax:     { left: -100, right: 100, top: -40, bottom: 40 },
+  desk:      { left: -600, right: 600, top: -350, bottom: 350 },
+  chair:     { left: -600, right: 600, top: -350, bottom: 350 },
+  monitor:   { left: -600, right: 600, top: -350, bottom: 350 },
+  accessory: { left: -600, right: 600, top: -350, bottom: 350 },
+  lighting:  { left: -600, right: 600, top: -350, bottom: 350 },
+  greenery:  { left: -600, right: 600, top: -350, bottom: 350 },
+  coffee:    { left: -600, right: 600, top: -350, bottom: 350 },
+  outdoor:   { left: -600, right: 600, top: -350, bottom: 350 },
+  relax:     { left: -600, right: 600, top: -350, bottom: 350 },
 };
 
 export type ZoneKey = "default" | "coffee" | "relax" | "desk";
