@@ -18,6 +18,9 @@ type State = {
 const DEFAULTS: Selection = {
   desk: ["desk-pandanus"],
   chair: ["chair-uluwatu"],
+  lighting: ["lamp-bukit"],
+  greenery: ["plant-monstera"],
+  coffee: ["coffee-espresso"],
 };
 
 export const useDesigner = create<State>()(
@@ -54,7 +57,7 @@ export const useDesigner = create<State>()(
       reset: () => set({ selection: DEFAULTS }),
     }),
     {
-      name: "monis-designer-v2",
+      name: "monis-designer-v3",
       skipHydration: true,
       partialize: (s) => ({ selection: s.selection }),
     },

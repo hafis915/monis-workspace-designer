@@ -36,6 +36,9 @@ type State = {
 const DEFAULTS: RealSelection = {
   desk: ["desk-electric"],
   chair: ["chair-ergo"],
+  monitor: ["mon-27-4k"],
+  lighting: ["lamp-mi"],
+  coffee: ["coffee-nespresso"],
 };
 
 export function instanceKey(category: RealCategory, itemId: string, index: number) {
@@ -105,7 +108,7 @@ export const useRealDesigner = create<State>()(
       reset: () => set({ selection: DEFAULTS, transforms: {} }),
     }),
     {
-      name: "monis-real-v1",
+      name: "monis-real-v2",
       skipHydration: true,
       partialize: (s) => ({ selection: s.selection, transforms: s.transforms }),
     },

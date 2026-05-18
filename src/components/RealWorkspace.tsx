@@ -356,9 +356,12 @@ export function RealWorkspace({
         )}
       </div>
 
-      {/* Zone control bar */}
+      {/* Zone control bar — hidden while an item is being edited */}
       <div
-        className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2"
+        className={clsx(
+          "absolute bottom-3 left-1/2 z-10 -translate-x-1/2 transition-opacity duration-200",
+          selectedKey ? "pointer-events-none opacity-0" : "opacity-100",
+        )}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center gap-1 rounded-full border border-[var(--color-line)] bg-[var(--color-paper)]/95 p-1 shadow-sm backdrop-blur">

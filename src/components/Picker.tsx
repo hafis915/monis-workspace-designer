@@ -103,7 +103,7 @@ export function Picker({ active, onActiveChange }: PickerProps) {
                       : "border-[var(--color-line)] hover:border-[var(--color-ink-soft)]",
                 )}
               >
-                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl">
+                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-md">
                   {item.thumb}
                 </div>
                 <div className="flex-1">

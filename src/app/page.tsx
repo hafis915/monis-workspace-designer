@@ -22,8 +22,7 @@ export default function Home() {
 
       <section className="mb-6 max-w-3xl">
         <h1 className="font-display text-4xl leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-5xl md:text-[3.5rem]">
-          Design the workspace you wish you had{" "}
-          <em className="not-italic text-[var(--color-ink-soft)]">— today.</em>
+          Rent the workspace you wish you had.
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-relaxed text-[var(--color-ink-soft)] sm:text-base">
           Mix and match desks, chairs, monitors, accessories, coffee gear,

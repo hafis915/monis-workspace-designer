@@ -146,7 +146,7 @@ export function RealPicker({
                   disabled={isDisabled}
                   className="flex flex-1 items-center gap-4 text-left"
                 >
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-md bg-white">
                     <Image
                       src={item.imageUrl}
                       alt={item.name}
