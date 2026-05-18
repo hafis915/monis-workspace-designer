@@ -1,0 +1,137 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { AnimatePresence, motion } from "framer-motion";
+import { Workspace } from "@/components/Workspace";
+import { useDesigner, totalPerDay, itemsInOrder } from "@/lib/store";
+
+const RENTAL_DAYS = 30;
+const DELIVERY = 12;
+
+export function CheckoutClient() {
+  const [reserved, setReserved] = useState(false);
+  const selection = useDesigner((s) => s.selection);
+  const daily = totalPerDay(selection);
+  const items = itemsInOrder(selection);
+  const subtotal = daily * RENTAL_DAYS;
+  const total = subtotal + DELIVERY;
+
+  if (items.length === 0) {
+    return (
+      <section className="my-16 text-center">
+        <h1 className="font-display text-4xl text-[var(--color-charcoal)]">
+          Nothing selected yet
+        </h1>
+        <p className="mt-3 text-[var(--color-charcoal-soft)]">
+          Head back to the designer and pick at least a desk and a chair.
+        </p>
+        <Link
+          href="/"
+          className="mt-6 inline-block rounded-full bg-[var(--color-charcoal)] px-6 py-3 text-sm uppercase tracking-[0.14em] text-[var(--color-sand)]"
+        >
+          Start designing
+        </Link>
+      </section>
+    );
+  }
+
+  return (
+    <section className="grid flex-1 grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      {/* preview */}
+      <div className="space-y-4">
+        <span className="block text-xs uppercase tracking-[0.18em] text-[var(--color-charcoal-soft)]">
+          Your setup
+        </span>
+        <Workspace />
+        <p className="text-sm leading-relaxed text-[var(--color-charcoal-soft)]">
+          We&apos;ll deliver and set up within 24 hours anywhere on the island.
+          Rental runs day-to-day — keep it as long as you need.
+        </p>
+      </div>
+
+      {/* summary */}
+      <div className="flex flex-col">
+        <span className="block text-xs uppercase tracking-[0.18em] text-[var(--color-charcoal-soft)]">
+          Order summary
+        </span>
+        <h1 className="mt-2 font-display text-4xl leading-tight tracking-tight text-[var(--color-charcoal)] sm:text-5xl">
+          Reserve your workspace.
+        </h1>
+
+        <ul className="mt-6 divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
+          {items.map((item) => (
+            <li key={item.id} className="flex items-center gap-4 py-3">
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg">
+                {item.thumb}
+              </div>
+              <div className="flex-1">
+                <div className="font-display text-base text-[var(--color-charcoal)]">
+                  {item.name}
+                </div>
+                <div className="text-xs uppercase tracking-[0.14em] text-[var(--color-charcoal-soft)]">
+                  {item.category}
+                </div>
+              </div>
+              <div className="text-right tabular-nums">
+                <div className="text-sm text-[var(--color-charcoal)]">
+                  ${item.pricePerDay}
+                  <span className="text-xs text-[var(--color-charcoal-soft)]">/day</span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <dl className="mt-5 space-y-2 text-sm">
+          <div className="flex justify-between text-[var(--color-charcoal-soft)]">
+            <dt>Daily rate</dt>
+            <dd className="tabular-nums">${daily}/day</dd>
+          </div>
+          <div className="flex justify-between text-[var(--color-charcoal-soft)]">
+            <dt>{RENTAL_DAYS} days</dt>
+            <dd className="tabular-nums">${subtotal}</dd>
+          </div>
+          <div className="flex justify-between text-[var(--color-charcoal-soft)]">
+            <dt>Delivery &amp; setup</dt>
+            <dd className="tabular-nums">${DELIVERY}</dd>
+          </div>
+          <div className="mt-3 flex items-baseline justify-between border-t border-[var(--color-line)] pt-3">
+            <dt className="font-display text-lg text-[var(--color-charcoal)]">
+              Total this month
+            </dt>
+            <dd className="font-display text-2xl tabular-nums text-[var(--color-charcoal)]">
+              ${total}
+            </dd>
+          </div>
+        </dl>
+
+        <button
+          onClick={() => setReserved(true)}
+          disabled={reserved}
+          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-charcoal)] py-3.5 text-sm uppercase tracking-[0.14em] text-[var(--color-sand)] transition hover:bg-[var(--color-jungle-deep)] disabled:opacity-60"
+        >
+          {reserved ? "Reserved — see you soon" : "Reserve setup"}
+        </button>
+        <p className="mt-3 text-center text-xs text-[var(--color-charcoal-soft)]">
+          No payment is taken in this demo.
+        </p>
+
+        <AnimatePresence>
+          {reserved && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
+              className="mt-5 rounded-2xl border border-[var(--color-jungle)] bg-[var(--color-sand-soft)] p-4 text-sm text-[var(--color-jungle-deep)]"
+            >
+              Confirmation sent. Our team will be in touch about delivery within
+              the next few hours.
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </section>
+  );
+}
