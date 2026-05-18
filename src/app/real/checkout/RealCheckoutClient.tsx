@@ -2,36 +2,39 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { Workspace } from "@/components/Workspace";
-import { useDesigner, totalPerDay, itemsInOrder } from "@/lib/store";
+import { RealWorkspace } from "@/components/RealWorkspace";
+import {
+  useRealDesigner,
+  realTotalPerDay,
+  realItemsInOrder,
+} from "@/lib/store-real";
+import { REAL_CATEGORY_BY_ID } from "@/lib/catalog-real";
 import { useUi, formatPrice } from "@/lib/ui-store";
-import { CATEGORY_BY_ID } from "@/lib/types";
 
 const RENTAL_DAYS = 30;
 const DELIVERY = 12;
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
-export function CheckoutClient() {
+export function RealCheckoutClient() {
   const [reserved, setReserved] = useState(false);
-  const selection = useDesigner((s) => s.selection);
+  const selection = useRealDesigner((s) => s.selection);
   const currency = useUi((s) => s.currency);
-  const daily = totalPerDay(selection);
-  const items = itemsInOrder(selection);
+  const daily = realTotalPerDay(selection);
+  const items = realItemsInOrder(selection);
   const subtotal = daily * RENTAL_DAYS;
   const total = subtotal + DELIVERY;
 
   if (items.length === 0) {
     return (
       <section className="my-16 text-center">
-        <h1 className="font-display text-4xl text-[var(--color-ink)]">
-          Nothing selected yet
-        </h1>
+        <h1 className="font-display text-4xl text-[var(--color-ink)]">Nothing selected yet</h1>
         <p className="mt-3 text-[var(--color-ink-soft)]">
           Head back to the designer and pick at least a desk and a chair.
         </p>
         <Link
-          href="/"
+          href="/real"
           className="mt-6 inline-block rounded-full bg-[var(--color-ink)] px-6 py-3 text-sm uppercase tracking-[0.14em] text-[var(--color-paper)]"
         >
           Start designing
@@ -46,7 +49,7 @@ export function CheckoutClient() {
         <span className="block text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-soft)]">
           Your setup
         </span>
-        <Workspace />
+        <RealWorkspace />
         <p className="text-sm leading-relaxed text-[var(--color-ink-soft)]">
           We&apos;ll deliver and set up within 24 hours anywhere on the island.
           Rental runs day-to-day — keep it as long as you need.
@@ -63,16 +66,24 @@ export function CheckoutClient() {
 
         <ul className="mt-6 divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
           {items.map((line, i) => (
-            <li key={`${line.item.id}-${line.index}-${i}`} className="flex items-center gap-4 py-3">
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg">
-                {line.item.thumb}
+            <li
+              key={`${line.item.id}-${line.index}-${i}`}
+              className="flex items-center gap-4 py-3"
+            >
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white">
+                <Image
+                  src={line.item.imageUrl}
+                  alt={line.item.name}
+                  fill
+                  sizes="48px"
+                  unoptimized
+                  style={{ objectFit: "contain", mixBlendMode: "multiply" }}
+                />
               </div>
               <div className="flex-1">
-                <div className="font-display text-base text-[var(--color-ink)]">
-                  {line.item.name}
-                </div>
+                <div className="font-display text-base text-[var(--color-ink)]">{line.item.name}</div>
                 <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">
-                  {CATEGORY_BY_ID[line.category].label}
+                  {REAL_CATEGORY_BY_ID[line.category].label}
                 </div>
               </div>
               <div className="text-right tabular-nums">
@@ -99,9 +110,7 @@ export function CheckoutClient() {
             <dd className="tabular-nums">{formatPrice(DELIVERY, currency)}</dd>
           </div>
           <div className="mt-3 flex items-baseline justify-between border-t border-[var(--color-line)] pt-3">
-            <dt className="font-display text-lg text-[var(--color-ink)]">
-              Total this month
-            </dt>
+            <dt className="font-display text-lg text-[var(--color-ink)]">Total this month</dt>
             <dd className="font-display text-2xl tabular-nums text-[var(--color-ink)]">
               {formatPrice(total, currency)}
             </dd>
@@ -128,8 +137,8 @@ export function CheckoutClient() {
               transition={{ duration: 0.32, ease }}
               className="mt-5 rounded-2xl border border-[var(--color-teal)] bg-[var(--color-paper-soft)] p-4 text-sm text-[var(--color-teal-deep)]"
             >
-              Confirmation sent. Our team will be in touch about delivery within
-              the next few hours.
+              Confirmation sent. Our team will be in touch about delivery
+              within the next few hours.
             </motion.div>
           )}
         </AnimatePresence>

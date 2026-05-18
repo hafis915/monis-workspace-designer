@@ -1,30 +1,29 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import clsx from "clsx";
-import { useUi } from "@/lib/ui-store";
 
-const OPTIONS = [
-  { id: "USD", label: "USD" },
-  { id: "IDR", label: "IDR" },
-] as const;
+const VIEWS = [
+  { label: "Sketch", prefix: "/", match: (p: string) => !p.startsWith("/real") },
+  { label: "Real", prefix: "/real", match: (p: string) => p.startsWith("/real") },
+];
 
-export function CurrencyToggle() {
-  const currency = useUi((s) => s.currency);
-  const setCurrency = useUi((s) => s.setCurrency);
+export function ViewToggle() {
+  const pathname = usePathname() ?? "/";
 
   return (
     <div
       className="inline-flex items-center gap-0.5 rounded-full border border-[var(--color-line)] bg-[var(--color-paper)] p-0.5"
       role="tablist"
-      aria-label="Currency"
+      aria-label="View"
     >
-      {OPTIONS.map((o) => {
-        const active = currency === o.id;
+      {VIEWS.map((v) => {
+        const active = v.match(pathname);
         return (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => setCurrency(o.id)}
+          <Link
+            key={v.label}
+            href={v.prefix}
             role="tab"
             aria-selected={active}
             className={clsx(
@@ -34,8 +33,8 @@ export function CurrencyToggle() {
                 : "text-[var(--color-ink-soft)] hover:text-[var(--color-ink)]",
             )}
           >
-            {o.label}
-          </button>
+            {v.label}
+          </Link>
         );
       })}
     </div>

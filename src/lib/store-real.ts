@@ -2,31 +2,32 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CATALOG_BY_ID } from "./catalog";
-import { CATEGORIES, CATEGORY_BY_ID, type Category, type Selection } from "./types";
-
-export { formatPrice } from "./ui-store";
-export type { Currency } from "./ui-store";
+import {
+  REAL_CATALOG_BY_ID,
+  REAL_CATEGORIES,
+  REAL_CATEGORY_BY_ID,
+  type RealCategory,
+  type RealSelection,
+} from "./catalog-real";
 
 type State = {
-  selection: Selection;
-  toggle: (category: Category, itemId: string) => void;
-  remove: (category: Category, itemId: string) => void;
+  selection: RealSelection;
+  toggle: (category: RealCategory, itemId: string) => void;
   reset: () => void;
 };
 
-const DEFAULTS: Selection = {
-  desk: ["desk-pandanus"],
-  chair: ["chair-uluwatu"],
+const DEFAULTS: RealSelection = {
+  desk: ["desk-electric"],
+  chair: ["chair-ergo"],
 };
 
-export const useDesigner = create<State>()(
+export const useRealDesigner = create<State>()(
   persist(
     (set) => ({
       selection: DEFAULTS,
       toggle: (category, itemId) =>
         set((s) => {
-          const meta = CATEGORY_BY_ID[category];
+          const meta = REAL_CATEGORY_BY_ID[category];
           const current = s.selection[category] ?? [];
           if (current.includes(itemId)) {
             const next = current.filter((id) => id !== itemId);
@@ -43,59 +44,48 @@ export const useDesigner = create<State>()(
           }
           return { selection: { ...s.selection, [category]: [...current, itemId] } };
         }),
-      remove: (category, itemId) =>
-        set((s) => {
-          const meta = CATEGORY_BY_ID[category];
-          const current = s.selection[category] ?? [];
-          const next = current.filter((id) => id !== itemId);
-          if (meta.required && next.length === 0) return s;
-          return { selection: { ...s.selection, [category]: next } };
-        }),
       reset: () => set({ selection: DEFAULTS }),
     }),
     {
-      name: "monis-designer-v2",
+      name: "monis-real-v1",
       skipHydration: true,
       partialize: (s) => ({ selection: s.selection }),
     },
   ),
 );
 
-export const totalPerDay = (selection: Selection): number => {
+export const realTotalPerDay = (selection: RealSelection): number => {
   let sum = 0;
   for (const ids of Object.values(selection)) {
     if (!ids) continue;
     for (const id of ids) {
-      const item = CATALOG_BY_ID[id];
+      const item = REAL_CATALOG_BY_ID[id];
       sum += item?.pricePerDay ?? 0;
     }
   }
   return sum;
 };
 
-export type LineItem = {
-  category: Category;
-  item: ReturnType<typeof asItem>;
+export type RealLineItem = {
+  category: RealCategory;
+  item: (typeof REAL_CATALOG_BY_ID)[string];
   index: number;
 };
 
-export const itemsInOrder = (selection: Selection): LineItem[] => {
-  const result: LineItem[] = [];
-  for (const cat of CATEGORIES) {
+export const realItemsInOrder = (selection: RealSelection): RealLineItem[] => {
+  const result: RealLineItem[] = [];
+  for (const cat of REAL_CATEGORIES) {
     const ids = selection[cat.id] ?? [];
     ids.forEach((id, index) => {
-      const item = CATALOG_BY_ID[id];
+      const item = REAL_CATALOG_BY_ID[id];
       if (item) result.push({ category: cat.id, item, index });
     });
   }
   return result;
 };
 
-const asItem = (id: string) => CATALOG_BY_ID[id];
-
-export const countInCategory = (selection: Selection, category: Category): number =>
+export const realCountInCategory = (selection: RealSelection, category: RealCategory): number =>
   (selection[category] ?? []).length;
 
-export const totalItemCount = (selection: Selection): number =>
+export const realTotalItemCount = (selection: RealSelection): number =>
   Object.values(selection).reduce((n, arr) => n + (arr?.length ?? 0), 0);
-
