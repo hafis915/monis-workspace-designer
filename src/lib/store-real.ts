@@ -10,9 +10,16 @@ import {
   type RealSelection,
 } from "./catalog-real";
 
+export type ItemTransform = { rotation: number; scale: number };
+
+const DEFAULT_TRANSFORM: ItemTransform = { rotation: 0, scale: 1 };
+
 type State = {
   selection: RealSelection;
+  transforms: Record<string, ItemTransform>; // key: instanceKey
   toggle: (category: RealCategory, itemId: string) => void;
+  setTransform: (key: string, patch: Partial<ItemTransform>) => void;
+  resetTransform: (key: string) => void;
   reset: () => void;
 };
 
@@ -21,10 +28,23 @@ const DEFAULTS: RealSelection = {
   chair: ["chair-ergo"],
 };
 
+export function instanceKey(category: RealCategory, itemId: string, index: number) {
+  return `${category}:${itemId}:${index}`;
+}
+
+const ROT_MIN = -180;
+const ROT_MAX = 180;
+const SCALE_MIN = 0.3;
+const SCALE_MAX = 2;
+
+const clamp = (n: number, min: number, max: number) =>
+  Math.max(min, Math.min(max, n));
+
 export const useRealDesigner = create<State>()(
   persist(
     (set) => ({
       selection: DEFAULTS,
+      transforms: {},
       toggle: (category, itemId) =>
         set((s) => {
           const meta = REAL_CATEGORY_BY_ID[category];
@@ -44,12 +64,33 @@ export const useRealDesigner = create<State>()(
           }
           return { selection: { ...s.selection, [category]: [...current, itemId] } };
         }),
-      reset: () => set({ selection: DEFAULTS }),
+      setTransform: (key, patch) =>
+        set((s) => {
+          const cur = s.transforms[key] ?? DEFAULT_TRANSFORM;
+          const next: ItemTransform = {
+            rotation:
+              patch.rotation !== undefined
+                ? clamp(patch.rotation, ROT_MIN, ROT_MAX)
+                : cur.rotation,
+            scale:
+              patch.scale !== undefined
+                ? clamp(patch.scale, SCALE_MIN, SCALE_MAX)
+                : cur.scale,
+          };
+          return { transforms: { ...s.transforms, [key]: next } };
+        }),
+      resetTransform: (key) =>
+        set((s) => {
+          const next = { ...s.transforms };
+          delete next[key];
+          return { transforms: next };
+        }),
+      reset: () => set({ selection: DEFAULTS, transforms: {} }),
     }),
     {
       name: "monis-real-v1",
       skipHydration: true,
-      partialize: (s) => ({ selection: s.selection }),
+      partialize: (s) => ({ selection: s.selection, transforms: s.transforms }),
     },
   ),
 );

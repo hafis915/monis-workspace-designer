@@ -3,22 +3,22 @@
 import { Fragment } from "react";
 import clsx from "clsx";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRealDesigner } from "@/lib/store-real";
+import { useRealDesigner, instanceKey } from "@/lib/store-real";
 import {
   REAL_CATALOG_BY_ID,
   type RealCategory,
 } from "@/lib/catalog-real";
 
 const LAYER_ORDER: RealCategory[] = [
-  "gaming",     // TV on wall behind everything
-  "lighting",   // floor lamp
+  "gaming",
+  "lighting",
   "coffee",
   "desk",
-  "monitor",    // on desk
-  "accessory",  // on desk
-  "computer",   // on desk
-  "chair",      // in front of desk
-  "fitness",    // foreground floor
+  "monitor",
+  "accessory",
+  "computer",
+  "chair",
+  "fitness",
 ];
 
 export type RealZoneKey = "default" | "desk" | "coffee" | "gaming" | "fitness";
@@ -55,9 +55,7 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 const slotMotion = {
   initial: { opacity: 0, y: 8, scale: 0.96 },
-  animate: { opacity: 1, y: 0, scale: 1 },
   exit:    { opacity: 0, y: -6, scale: 0.96 },
-  transition: { duration: 0.32, ease },
 };
 
 function autoZoneForCategory(category?: RealCategory): RealZoneKey {
@@ -80,16 +78,27 @@ type Props = {
   activeCategory?: RealCategory;
   manualZone?: RealZoneKey | null;
   onZoneChange?: (z: RealZoneKey | null) => void;
+  selectedKey?: string | null;
+  onSelectChange?: (key: string | null) => void;
 };
 
-export function RealWorkspace({ activeCategory, manualZone, onZoneChange }: Props) {
+export function RealWorkspace({
+  activeCategory,
+  manualZone,
+  onZoneChange,
+  selectedKey,
+  onSelectChange,
+}: Props) {
   const selection = useRealDesigner((s) => s.selection);
+  const transforms = useRealDesigner((s) => s.transforms);
   const autoZone = autoZoneForCategory(activeCategory);
   const zone: RealZoneKey = manualZone ?? autoZone;
 
   return (
-    <div className="relative aspect-[12/7] w-full overflow-hidden rounded-3xl bg-white ring-1 ring-[var(--color-line)]">
-      {/* light wash */}
+    <div
+      className="relative aspect-[12/7] w-full overflow-hidden rounded-3xl bg-white ring-1 ring-[var(--color-line)]"
+      onClick={() => onSelectChange?.(null)}
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0"
@@ -105,7 +114,6 @@ export function RealWorkspace({ activeCategory, manualZone, onZoneChange }: Prop
         transition={{ duration: 0.55, ease }}
         className="relative block h-full w-full"
       >
-        {/* room backdrop: wall + floor */}
         <rect x={0} y={0} width={1200} height={530} fill="#FFFFFF" />
         <rect x={0} y={530} width={1200} height={220} fill="#F4F2EC" />
         <line x1={0} y1={530} x2={1200} y2={530} stroke="var(--color-line)" strokeWidth={1} />
@@ -121,17 +129,40 @@ export function RealWorkspace({ activeCategory, manualZone, onZoneChange }: Prop
                   if (!item) return null;
                   const rect = item.position(index);
                   const bounds = DRAG_BOUNDS[category];
+                  const k = instanceKey(category, id, index);
+                  const t = transforms[k] ?? { rotation: 0, scale: 1 };
+                  const isSelected = selectedKey === k;
+                  // center the rect so rotation/scale orbit the item center
+                  const cx = rect.x + rect.w / 2;
+                  const cy = rect.y + rect.h / 2;
                   return (
                     <motion.g
                       key={`${category}-${id}-${index}`}
-                      {...slotMotion}
+                      initial={slotMotion.initial}
+                      exit={slotMotion.exit}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        rotate: t.rotation,
+                        scale: t.scale,
+                      }}
+                      transition={{ duration: 0.32, ease }}
                       drag
                       dragConstraints={bounds}
                       dragMomentum={false}
                       dragElastic={0.08}
-                      whileHover={{ scale: 1.02 }}
-                      whileDrag={{ scale: 1.05 }}
-                      style={{ cursor: "grab" }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectChange?.(k);
+                      }}
+                      whileHover={{ scale: t.scale * 1.02 }}
+                      whileDrag={{ scale: t.scale * 1.05 }}
+                      style={{
+                        cursor: "grab",
+                        transformOrigin: `${cx}px ${cy}px`,
+                        transformBox: "view-box",
+                      }}
                     >
                       <image
                         href={item.imageUrl}
@@ -140,8 +171,22 @@ export function RealWorkspace({ activeCategory, manualZone, onZoneChange }: Prop
                         width={rect.w}
                         height={rect.h}
                         preserveAspectRatio="xMidYMid meet"
-                        style={{ mixBlendMode: "multiply" }}
+                        style={{ mixBlendMode: "multiply", pointerEvents: "auto" }}
                       />
+                      {isSelected && (
+                        <rect
+                          x={rect.x - 6}
+                          y={rect.y - 6}
+                          width={rect.w + 12}
+                          height={rect.h + 12}
+                          fill="none"
+                          stroke="var(--color-lime-deep)"
+                          strokeWidth={2}
+                          strokeDasharray="6 4"
+                          rx={6}
+                          pointerEvents="none"
+                        />
+                      )}
                     </motion.g>
                   );
                 })}
@@ -152,7 +197,10 @@ export function RealWorkspace({ activeCategory, manualZone, onZoneChange }: Prop
       </motion.svg>
 
       {/* Zone control bar */}
-      <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2">
+      <div
+        className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center gap-1 rounded-full border border-[var(--color-line)] bg-[var(--color-paper)]/95 p-1 shadow-sm backdrop-blur">
           {ZONE_BUTTONS.map((b) => {
             const isActive = zone === b.key;
