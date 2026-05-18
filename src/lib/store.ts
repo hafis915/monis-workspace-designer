@@ -31,7 +31,7 @@ export const useDesigner = create<State>()(
         }),
       reset: () => set({ selection: DEFAULTS }),
     }),
-    { name: "monis-designer" },
+    { name: "monis-designer", skipHydration: true },
   ),
 );
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { StoreHydrator } from "@/components/StoreHydrator";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -35,7 +36,10 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full grain">{children}</body>
+      <body className="min-h-full grain" suppressHydrationWarning>
+        <StoreHydrator />
+        {children}
+      </body>
     </html>
   );
 }
