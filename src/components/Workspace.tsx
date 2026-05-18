@@ -53,11 +53,14 @@ function zoneForCategory(category: Category | undefined): keyof typeof ZONE_VIEW
 type WorkspaceProps = {
   className?: string;
   activeCategory?: Category;
+  forceUnzoom?: boolean;
+  onExitZoom?: () => void;
 };
 
-export function Workspace({ className, activeCategory }: WorkspaceProps) {
+export function Workspace({ className, activeCategory, forceUnzoom, onExitZoom }: WorkspaceProps) {
   const selection = useDesigner((s) => s.selection);
-  const zone = zoneForCategory(activeCategory);
+  const autoZone = zoneForCategory(activeCategory);
+  const zone = forceUnzoom ? "default" : autoZone;
   const isZoomed = zone !== "default";
 
   return (
@@ -143,19 +146,27 @@ export function Workspace({ className, activeCategory }: WorkspaceProps) {
           </AnimatePresence>
         </motion.svg>
 
-        {/* Zoom indicator */}
+        {/* Zoom indicator — click to exit */}
         <AnimatePresence>
           {isZoomed && (
-            <motion.div
+            <motion.button
+              type="button"
+              onClick={onExitZoom}
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.3, ease }}
-              className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-[var(--color-paper)]"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.97 }}
+              className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-[var(--color-paper)] shadow-sm transition hover:bg-[var(--color-teal-deep)]"
+              aria-label="Exit zoom"
             >
               <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-lime)]" />
               Zoom · {zone === "desk" ? "Desk" : zone === "coffee" ? "Coffee" : "Relax"}
-            </motion.div>
+              <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                <path d="M2 2 L8 8 M8 2 L2 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </motion.button>
           )}
         </AnimatePresence>
       </div>
