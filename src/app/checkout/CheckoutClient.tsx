@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Workspace } from "@/components/Workspace";
-import { useDesigner, totalPerDay, itemsInOrder } from "@/lib/store";
+import { useDesigner, totalPerDay, itemsInOrder, formatPrice } from "@/lib/store";
 import { CATEGORY_BY_ID } from "@/lib/types";
 
 const RENTAL_DAYS = 30;
@@ -14,6 +14,7 @@ const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 export function CheckoutClient() {
   const [reserved, setReserved] = useState(false);
   const selection = useDesigner((s) => s.selection);
+  const currency = useDesigner((s) => s.currency);
   const daily = totalPerDay(selection);
   const items = itemsInOrder(selection);
   const subtotal = daily * RENTAL_DAYS;
@@ -75,7 +76,7 @@ export function CheckoutClient() {
               </div>
               <div className="text-right tabular-nums">
                 <div className="text-sm text-[var(--color-ink)]">
-                  ${line.item.pricePerDay}
+                  {formatPrice(line.item.pricePerDay, currency)}
                   <span className="text-xs text-[var(--color-ink-soft)]">/day</span>
                 </div>
               </div>
@@ -86,22 +87,22 @@ export function CheckoutClient() {
         <dl className="mt-5 space-y-2 text-sm">
           <div className="flex justify-between text-[var(--color-ink-soft)]">
             <dt>Daily rate</dt>
-            <dd className="tabular-nums">${daily}/day</dd>
+            <dd className="tabular-nums">{formatPrice(daily, currency)}/day</dd>
           </div>
           <div className="flex justify-between text-[var(--color-ink-soft)]">
             <dt>{RENTAL_DAYS} days</dt>
-            <dd className="tabular-nums">${subtotal}</dd>
+            <dd className="tabular-nums">{formatPrice(subtotal, currency)}</dd>
           </div>
           <div className="flex justify-between text-[var(--color-ink-soft)]">
             <dt>Delivery &amp; setup</dt>
-            <dd className="tabular-nums">${DELIVERY}</dd>
+            <dd className="tabular-nums">{formatPrice(DELIVERY, currency)}</dd>
           </div>
           <div className="mt-3 flex items-baseline justify-between border-t border-[var(--color-line)] pt-3">
             <dt className="font-display text-lg text-[var(--color-ink)]">
               Total this month
             </dt>
             <dd className="font-display text-2xl tabular-nums text-[var(--color-ink)]">
-              ${total}
+              {formatPrice(total, currency)}
             </dd>
           </div>
         </dl>

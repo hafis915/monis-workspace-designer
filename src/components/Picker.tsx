@@ -9,6 +9,7 @@ import {
   totalPerDay,
   countInCategory,
   totalItemCount,
+  formatPrice,
 } from "@/lib/store";
 import { CATEGORIES, CATEGORY_BY_ID, type Category } from "@/lib/types";
 
@@ -23,6 +24,7 @@ export function Picker({ active, onActiveChange }: PickerProps) {
   const toggle = useDesigner((s) => s.toggle);
 
   const total = totalPerDay(selection);
+  const currency = useDesigner((s) => s.currency);
   const itemsForCat = CATALOG.filter((i) => i.category === active);
   const categoryMeta = CATEGORY_BY_ID[active];
   const selectedIds = selection[active] ?? [];
@@ -110,7 +112,7 @@ export function Picker({ active, onActiveChange }: PickerProps) {
                       {item.name}
                     </span>
                     <span className="text-xs tabular-nums text-[var(--color-ink-soft)]">
-                      ${item.pricePerDay}
+                      {formatPrice(item.pricePerDay, currency)}
                       <span className="opacity-60">/day</span>
                     </span>
                   </div>
@@ -138,7 +140,7 @@ export function Picker({ active, onActiveChange }: PickerProps) {
             </span>
           </div>
           <span className="font-display text-2xl tabular-nums text-[var(--color-ink)]">
-            ${total}
+            {formatPrice(total, currency)}
             <span className="text-sm text-[var(--color-ink-soft)]">/day</span>
           </span>
         </div>

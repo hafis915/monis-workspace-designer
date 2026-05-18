@@ -1,4 +1,5 @@
 import { DesignerLayout } from "@/components/DesignerLayout";
+import { CurrencyToggle } from "@/components/CurrencyToggle";
 
 export default function Home() {
   return (
@@ -12,8 +13,11 @@ export default function Home() {
             · Workspace designer
           </span>
         </div>
-        <div className="hidden text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)] md:block">
-          Bali · Canggu · Ubud · Uluwatu
+        <div className="flex items-center gap-4">
+          <span className="hidden text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)] md:inline">
+            Bali · Canggu · Ubud
+          </span>
+          <CurrencyToggle />
         </div>
       </header>
 

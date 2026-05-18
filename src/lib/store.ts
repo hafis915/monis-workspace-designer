@@ -5,10 +5,16 @@ import { persist } from "zustand/middleware";
 import { CATALOG_BY_ID } from "./catalog";
 import { CATEGORIES, CATEGORY_BY_ID, type Category, type Selection } from "./types";
 
+export type Currency = "USD" | "IDR";
+
+const USD_TO_IDR = 16000;
+
 type State = {
   selection: Selection;
+  currency: Currency;
   toggle: (category: Category, itemId: string) => void;
   remove: (category: Category, itemId: string) => void;
+  setCurrency: (c: Currency) => void;
   reset: () => void;
 };
 
@@ -21,12 +27,12 @@ export const useDesigner = create<State>()(
   persist(
     (set) => ({
       selection: DEFAULTS,
+      currency: "USD",
       toggle: (category, itemId) =>
         set((s) => {
           const meta = CATEGORY_BY_ID[category];
           const current = s.selection[category] ?? [];
           if (current.includes(itemId)) {
-            // Removing: but if required category, don't allow empty
             const next = current.filter((id) => id !== itemId);
             if (meta.required && next.length === 0) return s;
             return { selection: { ...s.selection, [category]: next } };
@@ -35,7 +41,6 @@ export const useDesigner = create<State>()(
             return { selection: { ...s.selection, [category]: [itemId] } };
           }
           if (current.length >= meta.max) {
-            // At max: replace the first item with the new one (FIFO)
             return {
               selection: { ...s.selection, [category]: [...current.slice(1), itemId] },
             };
@@ -50,9 +55,14 @@ export const useDesigner = create<State>()(
           if (meta.required && next.length === 0) return s;
           return { selection: { ...s.selection, [category]: next } };
         }),
+      setCurrency: (c) => set({ currency: c }),
       reset: () => set({ selection: DEFAULTS }),
     }),
-    { name: "monis-designer-v2", skipHydration: true },
+    {
+      name: "monis-designer-v2",
+      skipHydration: true,
+      partialize: (s) => ({ selection: s.selection, currency: s.currency }),
+    },
   ),
 );
 
@@ -71,7 +81,7 @@ export const totalPerDay = (selection: Selection): number => {
 export type LineItem = {
   category: Category;
   item: ReturnType<typeof asItem>;
-  index: number; // 0, 1, 2 within category
+  index: number;
 };
 
 export const itemsInOrder = (selection: Selection): LineItem[] => {
@@ -93,3 +103,15 @@ export const countInCategory = (selection: Selection, category: Category): numbe
 
 export const totalItemCount = (selection: Selection): number =>
   Object.values(selection).reduce((n, arr) => n + (arr?.length ?? 0), 0);
+
+/* ---------- price formatting ---------- */
+
+const idrFormatter = new Intl.NumberFormat("id-ID");
+
+export function formatPrice(usd: number, currency: Currency): string {
+  if (currency === "IDR") {
+    const idr = Math.round((usd * USD_TO_IDR) / 1000) * 1000;
+    return `Rp ${idrFormatter.format(idr)}`;
+  }
+  return `$${usd}`;
+}

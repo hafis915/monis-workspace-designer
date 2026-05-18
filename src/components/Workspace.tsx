@@ -28,10 +28,16 @@ const slotMotion = {
   transition: { duration: 0.32, ease },
 };
 
-const DRAG_BOUNDS: Partial<Record<Category, { left: number; right: number; top: number; bottom: number }>> = {
-  monitor: { left: -80, right: 80, top: -10, bottom: 10 },
-  accessory: { left: -50, right: 50, top: -15, bottom: 15 },
-  greenery: { left: -120, right: 120, top: -20, bottom: 20 },
+const DRAG_BOUNDS: Record<Category, { left: number; right: number; top: number; bottom: number }> = {
+  desk:      { left: -50,  right: 50,  top: -10, bottom: 10 },
+  chair:     { left: -70,  right: 70,  top: -20, bottom: 20 },
+  monitor:   { left: -80,  right: 80,  top: -15, bottom: 15 },
+  accessory: { left: -50,  right: 50,  top: -15, bottom: 15 },
+  lighting:  { left: -100, right: 100, top: -30, bottom: 30 },
+  greenery:  { left: -140, right: 140, top: -30, bottom: 30 },
+  coffee:    { left: -60,  right: 60,  top: -10, bottom: 10 },
+  outdoor:   { left: -80,  right: 80,  top: -40, bottom: 40 },
+  relax:     { left: -100, right: 100, top: -40, bottom: 40 },
 };
 
 export type ZoneKey = "default" | "coffee" | "relax" | "desk";
