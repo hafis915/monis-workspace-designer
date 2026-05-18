@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
 import { RealWorkspace } from "@/components/RealWorkspace";
 import {
   useRealDesigner,
@@ -12,11 +11,10 @@ import {
 } from "@/lib/store-real";
 import { REAL_CATEGORY_BY_ID } from "@/lib/catalog-real";
 import { useUi, formatPrice } from "@/lib/ui-store";
-import { ShareButton } from "@/components/ShareButton";
+import { ReceiptTakeover, type ReceiptLine } from "@/components/ReceiptTakeover";
 
 const RENTAL_DAYS = 30;
 const DELIVERY = 12;
-const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
 
 export function RealCheckoutClient() {
   const [reserved, setReserved] = useState(false);
@@ -29,10 +27,20 @@ export function RealCheckoutClient() {
   const subtotal = daily * RENTAL_DAYS;
   const total = subtotal + DELIVERY;
 
+  const receiptLines: ReceiptLine[] = items.map((line) => ({
+    id: line.item.id,
+    index: line.index,
+    name: line.item.name,
+    categoryLabel: REAL_CATEGORY_BY_ID[line.category].label,
+    pricePerDay: line.item.pricePerDay,
+  }));
+
   if (items.length === 0) {
     return (
       <section className="my-16 text-center">
-        <h1 className="font-display text-4xl text-[var(--color-ink)]">Nothing selected yet</h1>
+        <h1 className="font-display text-4xl text-[var(--color-ink)]">
+          Nothing selected yet
+        </h1>
         <p className="mt-3 text-[var(--color-ink-soft)]">
           Head back to the designer and pick at least a desk and a chair.
         </p>
@@ -60,112 +68,111 @@ export function RealCheckoutClient() {
       </div>
 
       <div className="flex flex-col">
-        <span className="block text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-soft)]">
-          Order summary · {items.length} items
-        </span>
-        <h1 className="mt-2 font-display text-4xl leading-tight tracking-tight text-[var(--color-ink)] sm:text-5xl">
-          Reserve your workspace.
-        </h1>
-
-        <ul className="mt-6 divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
-          {items.map((line, i) => (
-            <li
-              key={`${line.item.id}-${line.index}-${i}`}
-              className="flex items-center gap-4 py-3"
-            >
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-white">
-                <Image
-                  src={line.item.imageUrl}
-                  alt={line.item.name}
-                  fill
-                  sizes="48px"
-                  unoptimized
-                  style={{ objectFit: "contain", mixBlendMode: "multiply" }}
-                />
-              </div>
-              <div className="flex-1">
-                <div className="font-display text-base text-[var(--color-ink)]">{line.item.name}</div>
-                <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">
-                  {REAL_CATEGORY_BY_ID[line.category].label}
-                </div>
-              </div>
-              <div className="text-right tabular-nums">
-                <div className="text-sm text-[var(--color-ink)]">
-                  {formatPrice(line.item.pricePerDay, currency)}
-                  <span className="text-xs text-[var(--color-ink-soft)]">/day</span>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        <dl className="mt-5 space-y-2 text-sm">
-          <div className="flex justify-between text-[var(--color-ink-soft)]">
-            <dt>Daily rate</dt>
-            <dd className="tabular-nums">{formatPrice(daily, currency)}/day</dd>
-          </div>
-          <div className="flex justify-between text-[var(--color-ink-soft)]">
-            <dt>{RENTAL_DAYS} days</dt>
-            <dd className="tabular-nums">{formatPrice(subtotal, currency)}</dd>
-          </div>
-          <div className="flex justify-between text-[var(--color-ink-soft)]">
-            <dt>Delivery &amp; setup</dt>
-            <dd className="tabular-nums">{formatPrice(DELIVERY, currency)}</dd>
-          </div>
-          <div className="mt-3 flex items-baseline justify-between border-t border-[var(--color-line)] pt-3">
-            <dt className="font-display text-lg text-[var(--color-ink)]">Total this month</dt>
-            <dd className="font-display text-2xl tabular-nums text-[var(--color-ink)]">
-              {formatPrice(total, currency)}
-            </dd>
-          </div>
-        </dl>
-
-        <button
-          onClick={() => {
-            if (reserved || submitting) return;
-            setSubmitting(true);
-            window.setTimeout(() => {
-              setSubmitting(false);
-              setReserved(true);
-            }, 900);
-          }}
-          disabled={reserved || submitting}
-          aria-busy={submitting}
-          className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-ink)] py-3.5 text-sm uppercase tracking-[0.14em] text-[var(--color-paper)] transition hover:bg-[var(--color-teal-deep)] disabled:opacity-80"
-        >
-          {reserved ? (
-            "Reserved — see you soon"
-          ) : submitting ? (
-            <span className="inline-flex items-center gap-2">
-              <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-lime)]" />
-              Reserving…
+        {reserved ? (
+          <ReceiptTakeover
+            lines={receiptLines}
+            daily={daily}
+            subtotal={subtotal}
+            delivery={DELIVERY}
+            total={total}
+            currency={currency}
+            shareBase="/real"
+            sharePayload={{ selection, transforms }}
+            designerHref="/real"
+          />
+        ) : (
+          <>
+            <span className="block text-[11px] uppercase tracking-[0.18em] text-[var(--color-ink-soft)]">
+              Order summary · {items.length} items
             </span>
-          ) : (
-            "Reserve setup"
-          )}
-        </button>
-        <p className="mt-3 text-center text-xs text-[var(--color-ink-soft)]">
-          No payment is taken in this demo.
-        </p>
+            <h1 className="mt-2 font-display text-4xl leading-tight tracking-tight text-[var(--color-ink)] sm:text-5xl">
+              Reserve your workspace.
+            </h1>
 
-        <ShareButton basePath="/real" payload={{ selection, transforms }} />
+            <ul className="mt-6 divide-y divide-[var(--color-line)] border-y border-[var(--color-line)]">
+              {items.map((line, i) => (
+                <li
+                  key={`${line.item.id}-${line.index}-${i}`}
+                  className="flex items-center gap-4 py-3"
+                >
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-white">
+                    <Image
+                      src={line.item.imageUrl}
+                      alt={line.item.name}
+                      fill
+                      sizes="48px"
+                      unoptimized
+                      style={{ objectFit: "contain", mixBlendMode: "multiply" }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-display text-base text-[var(--color-ink)]">
+                      {line.item.name}
+                    </div>
+                    <div className="text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">
+                      {REAL_CATEGORY_BY_ID[line.category].label}
+                    </div>
+                  </div>
+                  <div className="text-right tabular-nums">
+                    <div className="text-sm text-[var(--color-ink)]">
+                      {formatPrice(line.item.pricePerDay, currency)}
+                      <span className="text-xs text-[var(--color-ink-soft)]">/day</span>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
 
-        <div role="status" aria-live="polite" aria-atomic="true">
-          <AnimatePresence>
-            {reserved && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.32, ease }}
-                className="mt-5 rounded-2xl border border-[var(--color-teal)] bg-[var(--color-paper-soft)] p-4 text-sm text-[var(--color-teal-deep)]"
-              >
-                Workspace reserved. Our team will be in touch about delivery
-                within the next few hours.
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+            <dl className="mt-5 space-y-2 text-sm">
+              <div className="flex justify-between text-[var(--color-ink-soft)]">
+                <dt>Daily rate</dt>
+                <dd className="tabular-nums">{formatPrice(daily, currency)}/day</dd>
+              </div>
+              <div className="flex justify-between text-[var(--color-ink-soft)]">
+                <dt>{RENTAL_DAYS} days</dt>
+                <dd className="tabular-nums">{formatPrice(subtotal, currency)}</dd>
+              </div>
+              <div className="flex justify-between text-[var(--color-ink-soft)]">
+                <dt>Delivery &amp; setup</dt>
+                <dd className="tabular-nums">{formatPrice(DELIVERY, currency)}</dd>
+              </div>
+              <div className="mt-3 flex items-baseline justify-between border-t border-[var(--color-line)] pt-3">
+                <dt className="font-display text-lg text-[var(--color-ink)]">
+                  Total this month
+                </dt>
+                <dd className="font-display text-2xl tabular-nums text-[var(--color-ink)]">
+                  {formatPrice(total, currency)}
+                </dd>
+              </div>
+            </dl>
+
+            <button
+              onClick={() => {
+                if (submitting) return;
+                setSubmitting(true);
+                window.setTimeout(() => {
+                  setSubmitting(false);
+                  setReserved(true);
+                }, 900);
+              }}
+              disabled={submitting}
+              aria-busy={submitting}
+              className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[var(--color-ink)] py-3.5 text-sm uppercase tracking-[0.14em] text-[var(--color-paper)] transition hover:bg-[var(--color-teal-deep)] disabled:opacity-80"
+            >
+              {submitting ? (
+                <span className="inline-flex items-center gap-2">
+                  <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-lime)]" />
+                  Reserving…
+                </span>
+              ) : (
+                "Reserve setup"
+              )}
+            </button>
+            <p className="mt-3 text-center text-xs text-[var(--color-ink-soft)]">
+              No payment is taken in this demo.
+            </p>
+          </>
+        )}
       </div>
     </section>
   );
