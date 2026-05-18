@@ -59,7 +59,12 @@ export function RealDesignerLayout() {
         />
       </div>
       <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 lg:p-6">
-        <RealPicker active={active} onActiveChange={handleActiveChange} />
+        <RealPicker
+          active={active}
+          onActiveChange={handleActiveChange}
+          selectedKey={selectedKey}
+          onSelectInstance={setSelectedKey}
+        />
       </div>
     </>
   );

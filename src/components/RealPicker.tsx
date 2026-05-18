@@ -15,15 +15,23 @@ import {
   realTotalPerDay,
   realCountInCategory,
   realTotalItemCount,
+  instanceKey,
 } from "@/lib/store-real";
 import { useUi, formatPrice } from "@/lib/ui-store";
 
 type Props = {
   active: RealCategory;
   onActiveChange: (cat: RealCategory) => void;
+  selectedKey?: string | null;
+  onSelectInstance?: (key: string | null) => void;
 };
 
-export function RealPicker({ active, onActiveChange }: Props) {
+export function RealPicker({
+  active,
+  onActiveChange,
+  selectedKey,
+  onSelectInstance,
+}: Props) {
   const setActive = onActiveChange;
   const selection = useRealDesigner((s) => s.selection);
   const toggle = useRealDesigner((s) => s.toggle);
@@ -34,6 +42,30 @@ export function RealPicker({ active, onActiveChange }: Props) {
   const categoryMeta = REAL_CATEGORY_BY_ID[active];
   const selectedIds = selection[active] ?? [];
   const atMax = selectedIds.length >= categoryMeta.max;
+
+  const handleCardClick = (itemId: string) => {
+    const isSelected = selectedIds.includes(itemId);
+    if (isSelected) {
+      // Already in selection: select for editing instead of removing.
+      const idx = selectedIds.indexOf(itemId);
+      const key = instanceKey(active, itemId, idx);
+      onSelectInstance?.(key);
+    } else {
+      // Not selected yet: add it and auto-select the new instance for editing.
+      toggle(active, itemId);
+      const nextIndex = (selectedIds.length >= categoryMeta.max && categoryMeta.max > 1)
+        ? categoryMeta.max - 1  // FIFO replaced last slot
+        : selectedIds.length;
+      const key = instanceKey(active, itemId, nextIndex);
+      onSelectInstance?.(key);
+    }
+  };
+
+  const handleRemove = (e: React.MouseEvent, itemId: string) => {
+    e.stopPropagation();
+    toggle(active, itemId); // toggle removes when already present
+    onSelectInstance?.(null);
+  };
 
   return (
     <div className="flex h-full flex-col">
@@ -89,52 +121,78 @@ export function RealPicker({ active, onActiveChange }: Props) {
         <div className="grid grid-cols-1 gap-3">
           {itemsForCat.map((item) => {
             const isSelected = selectedIds.includes(item.id);
+            const idx = isSelected ? selectedIds.indexOf(item.id) : -1;
+            const thisKey = isSelected ? instanceKey(active, item.id, idx) : null;
+            const isEditing = thisKey !== null && thisKey === selectedKey;
             const isDisabled = !isSelected && atMax && categoryMeta.max > 1;
             return (
-              <motion.button
+              <motion.div
                 key={item.id}
-                onClick={() => toggle(active, item.id)}
                 whileTap={isDisabled ? undefined : { scale: 0.985 }}
-                disabled={isDisabled}
                 className={clsx(
                   "group flex items-center gap-4 rounded-2xl border bg-[var(--color-paper-soft)] p-3 text-left transition",
-                  isSelected
-                    ? "border-[var(--color-ink)] ring-1 ring-[var(--color-ink)]"
-                    : isDisabled
-                      ? "cursor-not-allowed border-[var(--color-line)] opacity-40"
-                      : "border-[var(--color-line)] hover:border-[var(--color-ink-soft)]",
+                  isEditing
+                    ? "border-[var(--color-lime-deep)] ring-2 ring-[var(--color-lime)]"
+                    : isSelected
+                      ? "border-[var(--color-ink)] ring-1 ring-[var(--color-ink)]"
+                      : isDisabled
+                        ? "cursor-not-allowed border-[var(--color-line)] opacity-40"
+                        : "border-[var(--color-line)] hover:border-[var(--color-ink-soft)]",
                 )}
               >
-                <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.name}
-                    fill
-                    sizes="56px"
-                    unoptimized
-                    style={{ objectFit: "contain", mixBlendMode: "multiply" }}
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="font-display text-base text-[var(--color-ink)]">
-                      {item.name}
-                    </span>
-                    <span className="text-xs tabular-nums text-[var(--color-ink-soft)]">
-                      {formatPrice(item.pricePerDay, currency)}
-                      <span className="opacity-60">/day</span>
-                    </span>
+                <button
+                  type="button"
+                  onClick={() => !isDisabled && handleCardClick(item.id)}
+                  disabled={isDisabled}
+                  className="flex flex-1 items-center gap-4 text-left"
+                >
+                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-white">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fill
+                      sizes="56px"
+                      unoptimized
+                      style={{ objectFit: "contain", mixBlendMode: "multiply" }}
+                    />
                   </div>
-                  <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-[var(--color-ink-soft)]">
-                    {item.blurb}
-                  </p>
-                </div>
-                {isSelected && categoryMeta.max > 1 && (
-                  <span className="font-medium text-[10px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">
-                    Tap to remove
-                  </span>
+                  <div className="flex-1">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-display text-base text-[var(--color-ink)]">
+                        {item.name}
+                      </span>
+                      <span className="text-xs tabular-nums text-[var(--color-ink-soft)]">
+                        {formatPrice(item.pricePerDay, currency)}
+                        <span className="opacity-60">/day</span>
+                      </span>
+                    </div>
+                    <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-[var(--color-ink-soft)]">
+                      {isEditing
+                        ? "Editing in canvas →"
+                        : isSelected
+                          ? "Click to edit"
+                          : item.blurb}
+                    </p>
+                  </div>
+                </button>
+                {isSelected && (
+                  <button
+                    type="button"
+                    onClick={(e) => handleRemove(e, item.id)}
+                    aria-label="Remove from setup"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--color-ink-soft)] transition hover:bg-[var(--color-paper-deep)] hover:text-[var(--color-ink)]"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+                      <path
+                        d="M2 2 L10 10 M10 2 L2 10"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </button>
                 )}
-              </motion.button>
+              </motion.div>
             );
           })}
         </div>
