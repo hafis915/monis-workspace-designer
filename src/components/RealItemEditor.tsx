@@ -41,7 +41,12 @@ export function RealItemEditor({ selectedKey, itemName, onDeselect }: Props) {
   const resetTransform = useRealDesigner((s) => s.resetTransform);
 
   const t: ItemTransform =
-    (selectedKey && transforms[selectedKey]) || { rotation: 0, scale: 1 };
+    (selectedKey && transforms[selectedKey]) || {
+      rotation: 0,
+      swivelY: 0,
+      flipX: false,
+      scale: 1,
+    };
 
   if (!selectedKey) return null;
 
@@ -109,7 +114,7 @@ export function RealItemEditor({ selectedKey, itemName, onDeselect }: Props) {
               className="flex h-8 flex-1 items-center justify-center gap-1 rounded-full border border-[var(--color-line)] text-[11px] uppercase tracking-[0.1em] text-[var(--color-ink-soft)] transition hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
               aria-label="Rotate -15 degrees"
             >
-              <RotateCcw size={12} aria-hidden="true" />
+              <RotateCcw size={12} />
               −15°
             </button>
             <button
@@ -119,9 +124,9 @@ export function RealItemEditor({ selectedKey, itemName, onDeselect }: Props) {
                     t.rotation >= 0 ? Math.max(-180, t.rotation - 180) : Math.min(180, t.rotation + 180),
                 })
               }
-              className="h-8 rounded-full border border-[var(--color-ink)] bg-[var(--color-ink)] px-3 text-[11px] uppercase tracking-[0.1em] text-[var(--color-paper)] transition hover:bg-[var(--color-teal-deep)]"
+              className="h-8 rounded-full border border-[var(--color-line)] px-3 text-[11px] uppercase tracking-[0.1em] text-[var(--color-ink-soft)] transition hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
             >
-              Flip 180°
+              180°
             </button>
             <button
               onClick={() => patch({ rotation: t.rotation + 15 })}
@@ -129,9 +134,41 @@ export function RealItemEditor({ selectedKey, itemName, onDeselect }: Props) {
               aria-label="Rotate +15 degrees"
             >
               +15°
-              <RotateCw size={12} aria-hidden="true" />
+              <RotateCw size={12} />
             </button>
           </div>
+        </div>
+
+        {/* 3D swivel (Y-axis) + horizontal flip */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">
+              Swivel (3D)
+            </span>
+            <span className="text-xs tabular-nums text-[var(--color-ink)]">
+              {Math.round(t.swivelY)}°
+            </span>
+          </div>
+          <input
+            type="range"
+            min={-90}
+            max={90}
+            step={1}
+            value={t.swivelY}
+            onChange={(e) => patch({ swivelY: Number(e.target.value) })}
+            className="w-full accent-[var(--color-ink)]"
+            aria-label="Swivel"
+          />
+          <button
+            onClick={() => patch({ flipX: !t.flipX })}
+            className={
+              t.flipX
+                ? "h-8 rounded-full border border-[var(--color-ink)] bg-[var(--color-ink)] px-3 text-[11px] uppercase tracking-[0.1em] text-[var(--color-paper)] transition"
+                : "h-8 rounded-full border border-[var(--color-line)] px-3 text-[11px] uppercase tracking-[0.1em] text-[var(--color-ink-soft)] transition hover:border-[var(--color-ink)] hover:text-[var(--color-ink)]"
+            }
+          >
+            {t.flipX ? "Flipped horizontally" : "Flip horizontal"}
+          </button>
         </div>
 
         {/* Scale */}

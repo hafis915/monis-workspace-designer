@@ -10,9 +10,19 @@ import {
   type RealSelection,
 } from "./catalog-real";
 
-export type ItemTransform = { rotation: number; scale: number };
+export type ItemTransform = {
+  rotation: number;   // Z-axis in-plane spin, -180..180
+  swivelY: number;    // Y-axis 3D swivel, -90..90
+  flipX: boolean;     // horizontal mirror
+  scale: number;      // 0.3..2
+};
 
-const DEFAULT_TRANSFORM: ItemTransform = { rotation: 0, scale: 1 };
+const DEFAULT_TRANSFORM: ItemTransform = {
+  rotation: 0,
+  swivelY: 0,
+  flipX: false,
+  scale: 1,
+};
 
 type State = {
   selection: RealSelection;
@@ -34,6 +44,8 @@ export function instanceKey(category: RealCategory, itemId: string, index: numbe
 
 const ROT_MIN = -180;
 const ROT_MAX = 180;
+const SWIVEL_MIN = -90;
+const SWIVEL_MAX = 90;
 const SCALE_MIN = 0.3;
 const SCALE_MAX = 2;
 
@@ -72,6 +84,11 @@ export const useRealDesigner = create<State>()(
               patch.rotation !== undefined
                 ? clamp(patch.rotation, ROT_MIN, ROT_MAX)
                 : cur.rotation,
+            swivelY:
+              patch.swivelY !== undefined
+                ? clamp(patch.swivelY, SWIVEL_MIN, SWIVEL_MAX)
+                : cur.swivelY,
+            flipX: patch.flipX !== undefined ? patch.flipX : cur.flipX,
             scale:
               patch.scale !== undefined
                 ? clamp(patch.scale, SCALE_MIN, SCALE_MAX)

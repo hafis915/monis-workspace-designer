@@ -113,6 +113,7 @@ export function RealWorkspace({
         animate={{ viewBox: ZONE_VIEWBOX[zone] }}
         transition={{ duration: 0.55, ease }}
         className="relative block h-full w-full"
+        style={{ perspective: "1400px" }}
       >
         <rect x={0} y={0} width={1200} height={530} fill="#FFFFFF" />
         <rect x={0} y={530} width={1200} height={220} fill="#F4F2EC" />
@@ -130,7 +131,7 @@ export function RealWorkspace({
                   const rect = item.position(index);
                   const bounds = DRAG_BOUNDS[category];
                   const k = instanceKey(category, id, index);
-                  const t = transforms[k] ?? { rotation: 0, scale: 1 };
+                  const t = transforms[k] ?? { rotation: 0, swivelY: 0, flipX: false, scale: 1 };
                   const isSelected = selectedKey === k;
                   // center the rect so rotation/scale orbit the item center
                   const cx = rect.x + rect.w / 2;
@@ -144,7 +145,9 @@ export function RealWorkspace({
                         opacity: 1,
                         y: 0,
                         rotate: t.rotation,
-                        scale: t.scale,
+                        rotateY: t.swivelY,
+                        scaleX: t.flipX ? -t.scale : t.scale,
+                        scaleY: t.scale,
                       }}
                       transition={{ duration: 0.32, ease }}
                       drag
@@ -156,8 +159,8 @@ export function RealWorkspace({
                         e.stopPropagation();
                         onSelectChange?.(k);
                       }}
-                      whileHover={{ scale: t.scale * 1.02 }}
-                      whileDrag={{ scale: t.scale * 1.05 }}
+                      whileHover={{ scaleX: t.flipX ? -t.scale * 1.02 : t.scale * 1.02, scaleY: t.scale * 1.02 }}
+                      whileDrag={{ scaleX: t.flipX ? -t.scale * 1.05 : t.scale * 1.05, scaleY: t.scale * 1.05 }}
                       style={{
                         cursor: "grab",
                         transformOrigin: `${cx}px ${cy}px`,
