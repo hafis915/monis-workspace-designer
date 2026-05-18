@@ -25,7 +25,7 @@ export const CATEGORIES: CategoryMeta[] = [
   { id: "accessory", label: "Accessories", required: false, max: 4 },
   { id: "lighting", label: "Lighting", required: false, max: 1 },
   { id: "greenery", label: "Greenery", required: false, max: 1 },
-  { id: "coffee", label: "Coffee", required: false, max: 1 },
+  { id: "coffee", label: "Coffee", required: false, max: 2 },
   { id: "outdoor", label: "Outdoor gear", required: false, max: 1 },
   { id: "relax", label: "Relax zone", required: false, max: 1 },
 ];

@@ -1,10 +1,8 @@
-import { Workspace } from "@/components/Workspace";
-import { Picker } from "@/components/Picker";
+import { DesignerLayout } from "@/components/DesignerLayout";
 
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-[1500px] flex-col px-5 pb-10 pt-6 lg:px-10">
-      {/* nav */}
       <header className="flex items-center justify-between pb-6">
         <div className="flex items-baseline gap-2">
           <span className="font-display text-xl tracking-tight text-[var(--color-ink)]">
@@ -19,7 +17,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* hero */}
       <section className="mb-6 max-w-3xl">
         <h1 className="font-display text-4xl leading-[1.04] tracking-tight text-[var(--color-ink)] sm:text-5xl md:text-[3.5rem]">
           Design the workspace you wish you had{" "}
@@ -32,12 +29,8 @@ export default function Home() {
         </p>
       </section>
 
-      {/* grid */}
       <section className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_420px]">
-        <Workspace />
-        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-paper)] p-5 lg:p-6">
-          <Picker />
-        </div>
+        <DesignerLayout />
       </section>
 
       <footer className="mt-10 flex items-center justify-between border-t border-[var(--color-line)] pt-5 text-[11px] uppercase tracking-[0.14em] text-[var(--color-ink-soft)]">

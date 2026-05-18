@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -13,8 +12,13 @@ import {
 } from "@/lib/store";
 import { CATEGORIES, CATEGORY_BY_ID, type Category } from "@/lib/types";
 
-export function Picker() {
-  const [active, setActive] = useState<Category>("desk");
+type PickerProps = {
+  active: Category;
+  onActiveChange: (cat: Category) => void;
+};
+
+export function Picker({ active, onActiveChange }: PickerProps) {
+  const setActive = onActiveChange;
   const selection = useDesigner((s) => s.selection);
   const toggle = useDesigner((s) => s.toggle);
 

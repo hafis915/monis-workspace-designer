@@ -550,34 +550,40 @@ const greenerySnakeThumb = (
 );
 
 /* =========================================================
-   COFFEE STATION — far left wall area. translate(40, 360)
+   COFFEE STATION — far left, sits on the shared CoffeeTable.
+   Slot anchors on the table top (y=470 in scene coords).
+   index 0: left slot, index 1: right slot.
    ========================================================= */
 
-const coffeeEspresso = () => (
-  <g transform="translate(40, 380)">
-    <Shadow cx={70} cy={158} rx={70} ry={6} />
-    {/* small wooden stand */}
-    <rect x={10} y={120} width={120} height={32} fill={C.walnut} />
-    <rect x={10} y={148} width={120} height={4} fill={C.walnutDeep} />
-    {/* machine body */}
-    <rect x={28} y={50} width={84} height={70} rx={3} fill={C.ink} />
-    <rect x={28} y={50} width={84} height={6} fill={C.inkSoft} />
-    {/* group head */}
-    <rect x={56} y={90} width={28} height={20} fill={C.brass} />
-    <rect x={60} y={106} width={20} height={6} fill={C.brassShade} />
-    {/* portafilter handle */}
-    <rect x={64} y={112} width={12} height={18} fill={C.walnutDeep} />
-    {/* drip cup */}
-    <ellipse cx={70} cy={120} rx={10} ry={2} fill={C.paper} />
-    {/* steam wand */}
-    <line x1={104} y1={66} x2={114} y2={86} stroke={C.brass} strokeWidth={2} strokeLinecap="round" />
-    {/* power indicator */}
-    <circle cx={40} cy={68} r={3} fill={C.lime} />
-    {/* portafilter label */}
-    <rect x={36} y={62} width={28} height={10} fill={C.paper} />
-    <line x1={42} y1={67} x2={58} y2={67} stroke={C.ink} strokeWidth={0.7} />
-  </g>
-);
+const COFFEE_SLOTS = [
+  { x: 30, y: 380 },  // left slot
+  { x: 180, y: 380 }, // right slot
+];
+
+const coffeeEspresso = (index: number) => {
+  const a = COFFEE_SLOTS[index] ?? COFFEE_SLOTS[0];
+  return (
+    <g transform={`translate(${a.x}, ${a.y})`}>
+      {/* machine body */}
+      <rect x={2} y={50} width={84} height={70} rx={3} fill={C.ink} />
+      <rect x={2} y={50} width={84} height={6} fill={C.inkSoft} />
+      {/* group head */}
+      <rect x={30} y={90} width={28} height={20} fill={C.brass} />
+      <rect x={34} y={106} width={20} height={6} fill={C.brassShade} />
+      {/* portafilter handle */}
+      <rect x={38} y={112} width={12} height={18} fill={C.walnutDeep} />
+      {/* drip cup */}
+      <ellipse cx={44} cy={120} rx={10} ry={2} fill={C.paper} />
+      {/* steam wand */}
+      <line x1={78} y1={66} x2={88} y2={86} stroke={C.brass} strokeWidth={2} strokeLinecap="round" />
+      {/* power indicator */}
+      <circle cx={14} cy={68} r={3} fill={C.lime} />
+      {/* portafilter label */}
+      <rect x={10} y={62} width={28} height={10} fill={C.paper} />
+      <line x1={16} y1={67} x2={32} y2={67} stroke={C.ink} strokeWidth={0.7} />
+    </g>
+  );
+};
 const coffeeEspressoThumb = (
   <Thumb>
     <rect x={6} y={42} width={48} height={10} fill={C.walnut} />
@@ -588,26 +594,53 @@ const coffeeEspressoThumb = (
   </Thumb>
 );
 
-const coffeeV60 = () => (
-  <g transform="translate(40, 410)">
-    <Shadow cx={70} cy={134} rx={66} ry={6} />
-    {/* tray */}
-    <rect x={10} y={108} width={120} height={20} fill={C.walnut} />
-    <rect x={10} y={124} width={120} height={4} fill={C.walnutDeep} />
-    {/* kettle */}
-    <path d="M 14 60 L 26 60 L 34 100 L 6 100 Z" fill={C.ink} />
-    <rect x={10} y={56} width={20} height={6} rx={2} fill={C.inkSoft} />
-    {/* gooseneck spout */}
-    <path d="M 26 70 Q 56 60 56 92" stroke={C.ink} strokeWidth={3} fill="none" strokeLinecap="round" />
-    {/* handle */}
-    <path d="M 6 70 Q -4 78 0 92 L 6 92" stroke={C.ink} strokeWidth={3} fill="none" />
-    {/* V60 dripper */}
-    <path d="M 70 76 L 110 76 L 92 104 L 88 104 Z" fill={C.paper} />
-    <path d="M 70 76 L 110 76" stroke={C.lime} strokeWidth={2} />
-    {/* paper filter */}
-    <path d="M 76 78 L 104 78 L 92 100 L 88 100 Z" fill={C.paperSoft} />
-    {/* server jug */}
-    <rect x={78} y={94} width={24} height={14} fill={C.paperSoft} stroke={C.ink} strokeWidth={1} />
+const coffeeV60 = (index: number) => {
+  const a = COFFEE_SLOTS[index] ?? COFFEE_SLOTS[0];
+  return (
+    <g transform={`translate(${a.x + 6}, ${a.y + 30})`}>
+      {/* kettle */}
+      <path d="M 14 30 L 26 30 L 34 70 L 6 70 Z" fill={C.ink} />
+      <rect x={10} y={26} width={20} height={6} rx={2} fill={C.inkSoft} />
+      {/* gooseneck spout */}
+      <path d="M 26 40 Q 56 30 56 62" stroke={C.ink} strokeWidth={3} fill="none" strokeLinecap="round" />
+      {/* handle */}
+      <path d="M 6 40 Q -4 48 0 62 L 6 62" stroke={C.ink} strokeWidth={3} fill="none" />
+      {/* V60 dripper */}
+      <path d="M 70 46 L 110 46 L 92 74 L 88 74 Z" fill={C.paper} />
+      <path d="M 70 46 L 110 46" stroke={C.lime} strokeWidth={2} />
+      <path d="M 76 48 L 104 48 L 92 70 L 88 70 Z" fill={C.paperSoft} />
+      {/* server jug */}
+      <rect x={78} y={64} width={24} height={14} fill={C.paperSoft} stroke={C.ink} strokeWidth={1} />
+    </g>
+  );
+};
+
+/* Coffee table — structural element drawn when any coffee item is selected.
+   Always at the same position. Rendered by the Workspace component, not as
+   a regular catalog item. */
+export const CoffeeTable = () => (
+  <g transform="translate(20, 470)">
+    <Shadow cx={150} cy={68} rx={150} ry={9} />
+    {/* table surface */}
+    <rect x={0} y={0} width={300} height={20} fill={C.walnut} />
+    <rect x={0} y={16} width={300} height={4} fill={C.walnutDeep} />
+    {/* legs (hairpin style) */}
+    <path d="M 16 20 Q 8 40 18 64" stroke={C.ink} strokeWidth={2.5} fill="none" strokeLinecap="round" />
+    <path d="M 284 20 Q 292 40 282 64" stroke={C.ink} strokeWidth={2.5} fill="none" strokeLinecap="round" />
+    {/* lower shelf */}
+    <rect x={10} y={48} width={280} height={10} fill={C.walnutLight} />
+    <rect x={10} y={56} width={280} height={2} fill={C.walnut} />
+    {/* coffee beans stash on lower shelf */}
+    <rect x={30} y={36} width={20} height={12} fill={C.walnutDeep} rx={1} />
+    <rect x={56} y={36} width={20} height={12} fill={C.walnutDeep} rx={1} />
+    {/* lime label */}
+    <rect x={32} y={40} width={16} height={4} fill={C.lime} opacity={0.85} />
+    {/* poster on wall above table */}
+    <rect x={70} y={-160} width={120} height={140} fill={C.paper} stroke={C.line} strokeWidth={1} />
+    <rect x={78} y={-150} width={104} height={80} fill={C.lime} opacity={0.3} />
+    <rect x={78} y={-62} width={50} height={6} fill={C.ink} />
+    <rect x={78} y={-50} width={70} height={4} fill={C.inkSoft} />
+    <rect x={78} y={-42} width={40} height={4} fill={C.inkSoft} opacity={0.5} />
   </g>
 );
 const coffeeV60Thumb = (

@@ -3,20 +3,19 @@
 import { Fragment } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDesigner } from "@/lib/store";
-import { CATALOG_BY_ID } from "@/lib/catalog";
+import { CATALOG_BY_ID, CoffeeTable } from "@/lib/catalog";
 import type { Category } from "@/lib/types";
 
-// Back-to-front draw order. Wall stuff first, then floor, then desk + on-desk.
 const LAYER_ORDER: Category[] = [
-  "outdoor",      // leans against right wall
-  "coffee",       // far left wall area
-  "lighting",     // tall floor lamp goes behind
-  "greenery",     // floor plant
+  "outdoor",
+  "coffee",
+  "lighting",
+  "greenery",
   "desk",
-  "monitor",      // on desk (between desk and chair)
-  "accessory",    // on desk
-  "chair",        // in front of desk
-  "relax",        // foreground front-right
+  "monitor",
+  "accessory",
+  "chair",
+  "relax",
 ];
 
 const ease = [0.22, 1, 0.36, 1] as [number, number, number, number];
@@ -28,8 +27,38 @@ const slotMotion = {
   transition: { duration: 0.32, ease },
 };
 
-export function Workspace({ className }: { className?: string }) {
+// Drag bounds per category (in viewBox units, applied to the wrapping motion.g).
+const DRAG_BOUNDS: Partial<Record<Category, { left: number; right: number; top: number; bottom: number }>> = {
+  monitor: { left: -80, right: 80, top: -10, bottom: 10 },
+  accessory: { left: -50, right: 50, top: -15, bottom: 15 },
+  greenery: { left: -120, right: 120, top: -20, bottom: 20 },
+};
+
+// viewBox per focus zone. All maintain 12:7 aspect.
+const ZONE_VIEWBOX: Record<string, string> = {
+  default: "0 0 1200 750",
+  coffee: "0 320 686 400",
+  relax: "740 360 480 280",
+  desk: "240 100 686 400", // covers desk, chair, monitors, accessories
+};
+
+function zoneForCategory(category: Category | undefined): keyof typeof ZONE_VIEWBOX {
+  if (!category) return "default";
+  if (category === "coffee") return "coffee";
+  if (category === "relax") return "relax";
+  if (category === "desk" || category === "chair" || category === "monitor" || category === "accessory") return "desk";
+  return "default";
+}
+
+type WorkspaceProps = {
+  className?: string;
+  activeCategory?: Category;
+};
+
+export function Workspace({ className, activeCategory }: WorkspaceProps) {
   const selection = useDesigner((s) => s.selection);
+  const zone = zoneForCategory(activeCategory);
+  const isZoomed = zone !== "default";
 
   return (
     <div className={className}>
@@ -37,23 +66,26 @@ export function Workspace({ className }: { className?: string }) {
         {/* sun wash */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 z-0"
           style={{
             background:
               "radial-gradient(ellipse 40% 32% at 18% 14%, rgba(212,255,0,0.10), transparent 70%)",
           }}
         />
 
-        <svg viewBox="0 0 1200 750" className="block h-full w-full">
+        <motion.svg
+          viewBox={ZONE_VIEWBOX.default}
+          animate={{ viewBox: ZONE_VIEWBOX[zone] }}
+          transition={{ duration: 0.55, ease }}
+          className="relative block h-full w-full"
+        >
           {/* wall */}
           <rect x={0} y={0} width={1200} height={530} fill="var(--color-paper-soft)" />
           {/* floor */}
           <rect x={0} y={530} width={1200} height={220} fill="var(--color-paper-deep)" />
-          {/* horizon line */}
           <line x1={0} y1={530} x2={1200} y2={530} stroke="var(--color-line)" strokeWidth={1} />
           <rect x={0} y={530} width={1200} height={4} fill="var(--color-line)" opacity={0.6} />
 
-          {/* subtle floor pattern (block-printed feel) */}
           {Array.from({ length: 12 }).map((_, i) => (
             <line
               key={`floor${i}`}
@@ -67,16 +99,38 @@ export function Workspace({ className }: { className?: string }) {
             />
           ))}
 
-          {/* layers */}
           <AnimatePresence>
             {LAYER_ORDER.map((category) => {
               const ids = selection[category] ?? [];
               if (ids.length === 0) return null;
               return (
                 <Fragment key={category}>
+                  {category === "coffee" && (
+                    <motion.g key="coffee-table" {...slotMotion}>
+                      <CoffeeTable />
+                    </motion.g>
+                  )}
                   {ids.map((id, index) => {
                     const item = CATALOG_BY_ID[id];
                     if (!item) return null;
+                    const bounds = DRAG_BOUNDS[category];
+                    if (bounds) {
+                      return (
+                        <motion.g
+                          key={`${category}-${id}-${index}`}
+                          {...slotMotion}
+                          drag
+                          dragConstraints={bounds}
+                          dragMomentum={false}
+                          dragElastic={0.08}
+                          whileHover={{ scale: 1.02 }}
+                          whileDrag={{ scale: 1.04 }}
+                          style={{ cursor: "grab" }}
+                        >
+                          {item.scene(index)}
+                        </motion.g>
+                      );
+                    }
                     return (
                       <motion.g key={`${category}-${id}-${index}`} {...slotMotion}>
                         {item.scene(index)}
@@ -87,7 +141,23 @@ export function Workspace({ className }: { className?: string }) {
               );
             })}
           </AnimatePresence>
-        </svg>
+        </motion.svg>
+
+        {/* Zoom indicator */}
+        <AnimatePresence>
+          {isZoomed && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, ease }}
+              className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full bg-[var(--color-ink)] px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-[var(--color-paper)]"
+            >
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-lime)]" />
+              Zoom · {zone === "desk" ? "Desk" : zone === "coffee" ? "Coffee" : "Relax"}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
